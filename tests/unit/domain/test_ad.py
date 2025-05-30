@@ -43,15 +43,12 @@ def test_ad_domain_is_owner():
 
 
 def test_item_category_validation():
-    # Valid category
     valid_category = ad_domain.ItemCategory.ELECTRONICS
     assert valid_category == ad_domain.ItemCategory.ELECTRONICS
 
-    # Test creation from string value
     from_string = ad_domain.ItemCategory("electronics")
     assert from_string == ad_domain.ItemCategory.ELECTRONICS
 
-    # Invalid category should raise ValueError
     with pytest.raises(ValueError):
         ad_domain.ItemCategory("invalid_category")
 
@@ -70,11 +67,9 @@ def test_item_status_transitions():
 
     assert ad.status == ad_domain.ItemStatus.ACTIVE
 
-    # Test changing status
     ad.status = ad_domain.ItemStatus.TRADED
     assert ad.status == ad_domain.ItemStatus.TRADED
 
-    # Test creation from string
     ad.status = ad_domain.ItemStatus("archived")
     assert ad.status == ad_domain.ItemStatus.ARCHIVED
 
@@ -92,11 +87,10 @@ def test_ad_domain_equality():
         status=ad_domain.ItemStatus.ACTIVE
     )
 
-    # Same ad with same ID
     ad2 = ad_domain.Ad(
         id=UUID('00000000-0000-0000-0000-000000000001'),
         user_id=UUID('00000000-0000-0000-0000-000000000002'),
-        title="Different Title",  # Different title shouldn't matter for equality
+        title="Different Title",
         owner_username="testuser",
         description="Different description",
         image_url="https://example.com/different.jpg",
@@ -105,7 +99,6 @@ def test_ad_domain_equality():
         status=ad_domain.ItemStatus.ACTIVE
     )
 
-    # Different ID
     ad3 = ad_domain.Ad(
         id=UUID('00000000-0000-0000-0000-000000000003'),
         user_id=UUID('00000000-0000-0000-0000-000000000002'),
@@ -118,13 +111,11 @@ def test_ad_domain_equality():
         status=ad_domain.ItemStatus.ACTIVE
     )
 
-    # Test equality is based on ID
-    assert ad1 == ad2  # Same ID should be equal regardless of other attributes
-    assert ad1 != ad3  # Different ID should not be equal
+    assert ad1 == ad2
+    assert ad1 != ad3
 
 
 def test_ad_domain_validation():
-    # Test with valid data
     valid_ad = ad_domain.Ad(
         user_id=UUID('00000000-0000-0000-0000-000000000001'),
         title="Valid Ad",
@@ -138,7 +129,6 @@ def test_ad_domain_validation():
 
     assert valid_ad.title == "Valid Ad"
 
-    # Test with invalid category (should raise ValueError)
     with pytest.raises(ValueError):
         invalid_ad = ad_domain.Ad(
             user_id=UUID('00000000-0000-0000-0000-000000000001'),
@@ -146,12 +136,11 @@ def test_ad_domain_validation():
             owner_username="testuser",
             description="Valid description",
             image_url="https://example.com/valid.jpg",
-            category=ad_domain.ItemCategory("INVALID_CATEGORY"),  # This should cause an error
+            category=ad_domain.ItemCategory("INVALID_CATEGORY"),
             condition=ad_domain.ItemCondition.NEW,
             status=ad_domain.ItemStatus.ACTIVE
         )
 
-    # Test with invalid condition (should raise ValueError)
     with pytest.raises(ValueError):
         invalid_ad = ad_domain.Ad(
             user_id=UUID('00000000-0000-0000-0000-000000000001'),
@@ -160,11 +149,10 @@ def test_ad_domain_validation():
             description="Valid description",
             image_url="https://example.com/valid.jpg",
             category=ad_domain.ItemCategory.ELECTRONICS,
-            condition=ad_domain.ItemCondition("INVALID_CONDITION"),  # This should cause an error
+            condition=ad_domain.ItemCondition("INVALID_CONDITION"),
             status=ad_domain.ItemStatus.ACTIVE
         )
 
-    # Test with invalid status (should raise ValueError)
     with pytest.raises(ValueError):
         invalid_ad = ad_domain.Ad(
             user_id=UUID('00000000-0000-0000-0000-000000000001'),
@@ -174,12 +162,11 @@ def test_ad_domain_validation():
             image_url="https://example.com/valid.jpg",
             category=ad_domain.ItemCategory.ELECTRONICS,
             condition=ad_domain.ItemCondition.NEW,
-            status=ad_domain.ItemStatus("INVALID_STATUS")  # This should cause an error
+            status=ad_domain.ItemStatus("INVALID_STATUS")
         )
 
 
 def test_ad_domain_immutability():
-    """Test that changing an ad's attributes doesn't affect other ads with the same ID"""
     original_ad = ad_domain.Ad(
         id=UUID('00000000-0000-0000-0000-000000000001'),
         user_id=UUID('00000000-0000-0000-0000-000000000002'),
@@ -208,7 +195,6 @@ def test_ad_domain_immutability():
     assert original_ad.title == "Original Title"
     assert modified_ad.title == "Modified Title"
 
-    # Changing status on one doesn't affect the other
     original_ad.status = ad_domain.ItemStatus.TRADED
     assert original_ad.status == ad_domain.ItemStatus.TRADED
     assert modified_ad.status == ad_domain.ItemStatus.ACTIVE

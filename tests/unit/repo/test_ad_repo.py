@@ -7,7 +7,6 @@ from src.apps.ads import domain as ad_domain
 
 
 def test_save_and_get_ad(user, ad_repo):
-    # Создаем объект обмена
     ad = ad_domain.Ad(
         user_id=user.id,
         title="Test Ad",
@@ -19,10 +18,8 @@ def test_save_and_get_ad(user, ad_repo):
         status=ad_domain.ItemStatus.ACTIVE
     )
 
-    # Сохраняем объект в репозитории
     saved_ad = ad_repo.create(ad)
 
-    # Получаем из репозитория
     retrieved_ad = ad_repo.find_by_id(saved_ad.id)
 
     assert retrieved_ad.user_id == user.id
@@ -34,7 +31,6 @@ def test_save_and_get_ad(user, ad_repo):
 
 
 def test_ad_repo_search_with_multiple_criteria(user, ad_repo):
-    # Create ads with various combinations of properties
     ad1 = ad_domain.Ad(
         user_id=user.id,
         title="New Gaming Laptop",
@@ -72,7 +68,6 @@ def test_ad_repo_search_with_multiple_criteria(user, ad_repo):
     ad_repo.create(ad2)
     ad_repo.create(ad3)
 
-    # Test search with multiple criteria - should match ad1
     results = ad_repo.search(
         category=ad_domain.ItemCategory.ELECTRONICS.value,
         condition=ad_domain.ItemCondition.NEW.value,
@@ -85,7 +80,6 @@ def test_ad_repo_search_with_multiple_criteria(user, ad_repo):
     assert len(results) == 1
     assert results[0].title == "New Gaming Laptop"
 
-    # Test search with broader criteria - should match ad1 and ad2
     results = ad_repo.search(
         category=ad_domain.ItemCategory.ELECTRONICS.value,
         condition=None,
@@ -100,7 +94,6 @@ def test_ad_repo_search_with_multiple_criteria(user, ad_repo):
     assert "New Gaming Laptop" in titles
     assert "Used Gaming Console" in titles
 
-    # Test search for new items across categories
     results = ad_repo.search(
         category=None,
         condition=ad_domain.ItemCondition.NEW.value,
@@ -144,10 +137,8 @@ def test_repo_find_nonexistent_ad(ad_repo):
 
 
 def test_repo_find_user_ads(user, ad_repo):
-    # Clear existing ads
     Ad.objects.filter(user_id=user.id).delete()
 
-    # Create ads for the user
     ad1 = ad_domain.Ad(
         user_id=user.id,
         title="User Ad 1",
@@ -172,7 +163,6 @@ def test_repo_find_user_ads(user, ad_repo):
     ad_repo.create(ad1)
     ad_repo.create(ad2)
 
-    # Create ad for another user\
     User = get_user_model()
     User.objects.create_user(username="otheruser", password="password")
     other_user_id = User.objects.get(username="otheruser").id
@@ -189,7 +179,6 @@ def test_repo_find_user_ads(user, ad_repo):
     )
     ad_repo.create(other_ad)
 
-    # Find user ads
     user_ads = ad_repo.find_user_ads(user.id)
 
     assert len(user_ads) == 2
@@ -200,7 +189,6 @@ def test_repo_find_user_ads(user, ad_repo):
 
 
 def test_repo_search(user, ad_repo):
-    # Create test ads with various properties
     ad_repo.create(ad_domain.Ad(
         user_id=user.id,
         title="Macbook Pro",
@@ -234,7 +222,6 @@ def test_repo_search(user, ad_repo):
         status=ad_domain.ItemStatus.ARCHIVED
     ))
 
-    # Test search by category
     electronics_results = ad_repo.search(
         category=ad_domain.ItemCategory.ELECTRONICS,
         condition=None,
@@ -247,7 +234,6 @@ def test_repo_search(user, ad_repo):
     assert len(electronics_results) == 2
     assert all(ad.category == ad_domain.ItemCategory.ELECTRONICS for ad in electronics_results)
 
-    # Test search by condition
     new_results = ad_repo.search(
         category=None,
         condition=ad_domain.ItemCondition.NEW.value,
@@ -260,7 +246,6 @@ def test_repo_search(user, ad_repo):
     assert len(new_results) >= 1
     assert all(ad.condition == ad_domain.ItemCondition.NEW for ad in new_results)
 
-    # Test search by keyword
     laptop_results = ad_repo.search(
         category=None,
         condition=None,
@@ -274,7 +259,6 @@ def test_repo_search(user, ad_repo):
     assert any("Macbook" in ad.title for ad in laptop_results)
     assert any("Dell" in ad.title for ad in laptop_results)
 
-    # Test combined search
     specific_results = ad_repo.search(
         category=ad_domain.ItemCategory.ELECTRONICS.value,
         condition=ad_domain.ItemCondition.USED.value,

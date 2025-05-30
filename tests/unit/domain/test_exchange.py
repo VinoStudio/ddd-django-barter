@@ -110,8 +110,6 @@ def test_exchange_domain_validation():
 
 
 def test_exchange_domain_immutability():
-    """Test that changing an exchange's attributes doesn't affect others with the same ID"""
-    # Create original exchange
     original_exchange = exchange_domain.Exchange(
         id=UUID('00000000-0000-0000-0000-000000000001'),
         ad_sender_id=UUID('00000000-0000-0000-0000-000000000002'),
@@ -120,7 +118,6 @@ def test_exchange_domain_immutability():
         status=exchange_domain.ExchangeStatus.PENDING
     )
 
-    # Create a copy with the same ID but different attributes
     modified_exchange = exchange_domain.Exchange(
         id=UUID('00000000-0000-0000-0000-000000000001'),
         ad_sender_id=UUID('00000000-0000-0000-0000-000000000002'),
@@ -129,14 +126,12 @@ def test_exchange_domain_immutability():
         status=exchange_domain.ExchangeStatus.ACCEPTED
     )
 
-    # Verify that changing attributes doesn't affect the original
-    assert original_exchange.id == modified_exchange.id  # IDs are equal
-    assert original_exchange.comment == "Original comment"  # Original comment unchanged
-    assert modified_exchange.comment == "Modified comment"  # Modified comment is different
+    assert original_exchange.id == modified_exchange.id
+    assert original_exchange.comment == "Original comment"
+    assert modified_exchange.comment == "Modified comment"
     assert original_exchange.status == exchange_domain.ExchangeStatus.PENDING
     assert modified_exchange.status == exchange_domain.ExchangeStatus.ACCEPTED
 
-    # Changing status on one doesn't affect the other
     original_exchange.reject()
     assert original_exchange.status == exchange_domain.ExchangeStatus.REJECTED
-    assert modified_exchange.status == exchange_domain.ExchangeStatus.ACCEPTED  # Remains unchanged
+    assert modified_exchange.status == exchange_domain.ExchangeStatus.ACCEPTED

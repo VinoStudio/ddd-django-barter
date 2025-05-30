@@ -37,10 +37,10 @@ class CreateExchangeDTO(DTO):
     comment: str = None
 
     @classmethod
-    def from_request(cls, request: Any) -> Self:
+    def from_request(cls, request, ad_receiver_id) -> Self:
         return cls(
             ad_sender_id=request.POST.get('ad_sender_id'),
-            ad_receiver_id=request.POST.get('ad_receiver_id'),
+            ad_receiver_id=ad_receiver_id,
             user_id=request.user.id,
             comment=request.POST.get('comment'),
         )
@@ -53,9 +53,9 @@ class UpdateExchangeStatusDTO(DTO):
     status: ExchangeStatus
 
     @classmethod
-    def from_request(cls, request: Any) -> Self:
+    def from_request(cls, request, exchange_id) -> Self:
         return cls(
-            exchange_id=request.POST.get('exchange_id'),
+            exchange_id=exchange_id,
             user_id=request.user.id,
             status=ExchangeStatus(request.POST.get('status')),
         )

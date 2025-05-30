@@ -6,5 +6,5 @@ from typing import Any
 class DTO(ABC):
 
     @abstractmethod
-    def from_request(self, request: Any):
+    def from_request(self, *args, **kwargs):
         raise NotImplementedError

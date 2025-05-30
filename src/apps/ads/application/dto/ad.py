@@ -68,10 +68,10 @@ class UpdateAdDTO(DTO):
     status: Optional[str] = None
 
     @classmethod
-    def from_request(cls, request) -> Self:
+    def from_request(cls, request, ad_id) -> Self:
         img = request.FILES.get('image')
         return cls(
-            ad_id=request.POST.get('ad_id'),
+            ad_id=ad_id,
             user_id=request.user.id,
             title=request.POST.get('title'),
             description=request.POST.get('description'),

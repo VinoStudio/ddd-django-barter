@@ -29,7 +29,7 @@ make app
 ```
 - then run the following command to apply django-migrations:
 ```bash
-make mimigrations
+make migrations
 ```
 - next time is enough to run:
 ```bash
@@ -41,11 +41,15 @@ make app
 make down
 ```
 
+3. Access to application logs by:
+```bash
+make logs
+```
+
 ### Accessing Services
 
 Once running, you can access:
 - Auth Service API: http://localhost:8005/
 - PgAdmin: http://localhost:5443
 
-You can change API port by editing the .env file
-To change PgAdmin, Postgres ports, edit the docker-compose.yaml
+You can change project settings by editing the .env file

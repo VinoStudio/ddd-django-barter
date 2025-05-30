@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, UTC
+from typing import Optional
+
 from uuid6 import UUID
 
 from src.apps.ads import domain
@@ -63,7 +65,7 @@ class AdService:
     def delete_ad(ad_id: UUID, user_id: UUID) -> bool:
         existing_ad = AdRepository.find_by_id(ad_id)
         if not existing_ad:
-            raise NotFoundError(f"Объявление с ID {ad_id} не найдено")
+            raise NotFoundError(f"Ad with ID {ad_id} not found")
 
         if not existing_ad.is_owner(user_id):
             raise PermissionDeniedError("Only the author of the ad can update it")
@@ -71,12 +73,18 @@ class AdService:
         return AdRepository.delete(ad_id)
 
     @staticmethod
-    def get_ad(ad_id: UUID) -> domain.Ad:
-        return AdRepository.find_by_id(ad_id)
+    def get_ad(ad_id: UUID) -> Optional[domain.Ad]:
+        ad = AdRepository.find_by_id(ad_id)
+        if not ad:
+            raise NotFoundError(f"Ad with ID {ad_id} not found")
+        return ad
 
     @staticmethod
     def get_user_ads(user_id: UUID) -> list[domain.Ad]:
-        return AdRepository.find_user_ads(user_id=user_id)
+        user_ads = AdRepository.find_user_ads(user_id=user_id)
+        if not user_ads:
+            raise NotFoundError(f"Ads with user ID {user_id} not found")
+        return user_ads
 
     @staticmethod
     def list_ads(filter: AdFilterDTO) -> list[domain.Ad]:

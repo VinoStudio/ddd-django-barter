@@ -105,16 +105,7 @@ class AdUpdateView(LoginRequiredMixin, View):
         return render(request, 'ads/ad_form.html', context)
 
     def post(self, request, ad_id):
-        dto = UpdateAdDTO(
-            ad_id=ad_id,
-            user_id=request.user.id,
-            title=request.POST.get('title'),
-            description=request.POST.get('description'),
-            image_url=request.POST.get('image_url'),
-            category=request.POST.get('category'),
-            condition=request.POST.get('condition'),
-            status=request.POST.get('status')
-        )
+        dto = UpdateAdDTO.from_request(request, ad_id)
 
         updated_ad = ad_service.update_ad(dto)
 

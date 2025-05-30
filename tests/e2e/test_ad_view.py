@@ -1,7 +1,5 @@
 from uuid6 import UUID
 from django.urls import reverse
-
-from src.apps.exchanges import domain as exchange_domain
 from src.apps.ads import domain as ad_domain
 
 def test_ad_list_view(client, test_user_ad):
@@ -14,7 +12,6 @@ def test_ad_list_view(client, test_user_ad):
 
 
 def test_ad_list_view_with_filters(client, ad_repo, user):
-    # Create multiple ads with different properties
     electronics_ad = ad_domain.Ad(
         user_id=user.id,
         title="Electronics Item",
@@ -52,28 +49,24 @@ def test_ad_list_view_with_filters(client, ad_repo, user):
     ad_repo.create(book_ad)
     ad_repo.create(sold_ad)
 
-    # Test filtering by category
     url = reverse('ad_list') + '?category=electronics'
     response = client.get(url)
     assert response.status_code == 200
     assert b"Electronics Item" in response.content
     assert b"Book Item" not in response.content
 
-    # Test filtering by condition
     url = reverse('ad_list') + '?condition=used'
     response = client.get(url)
     assert response.status_code == 200
     assert b"Book Item" in response.content
     assert b"Electronics Item" not in response.content
 
-    # Test filtering by status
     url = reverse('ad_list') + '?status=traded'
     response = client.get(url)
     assert response.status_code == 200
     assert b"Sold Item" in response.content
     assert b"Electronics Item" not in response.content
 
-    # Test search
     url = reverse('ad_list') + '?search=electronics'
     response = client.get(url)
     assert response.status_code == 200
@@ -99,17 +92,15 @@ def test_ad_detail_view_not_found(client):
 
 
 def test_ad_detail_view_owner_check(authenticated_client, test_user_ad, second_user_ad):
-    # Test viewing your own ad
     url = reverse('ad_detail', args=[test_user_ad.id])
     response = authenticated_client.get(url)
     assert response.status_code == 200
-    assert b"Edit" in response.content  # Assuming Edit button is shown for owners
+    assert b"Edit" in response.content
 
-    # Test viewing someone else's ad
     url = reverse('ad_detail', args=[second_user_ad.id])
     response = authenticated_client.get(url)
     assert response.status_code == 200
-    assert b"Edit" not in response.content  # Edit button should not be shown
+    assert b"Edit" not in response.content
 
 
 def test_ad_create_view_get(authenticated_client):
@@ -222,7 +213,6 @@ def test_ad_delete_view_unauthenticated(client, test_user_ad):
 
 
 def test_complete_ad_journey(authenticated_client, user, ad_repo):
-    # 1. Create a new ad
     create_url = reverse('ad_create')
     create_data = {
         'title': 'Journey Test Ad',

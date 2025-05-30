@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from typing import Optional
+
 from uuid6 import UUID
 
 from src.apps.ads.application.services.ad_service import AdService
@@ -72,17 +74,29 @@ class ExchangeService:
         return ExchangeRepository.delete(exchange_id)
 
     @staticmethod
-    def get_exchange(exchange_id: UUID) -> domain.Exchange:
-        return ExchangeRepository.find_by_id(exchange_id)
+    def get_exchange(exchange_id: UUID) -> Optional[domain.Exchange]:
+        exchange = ExchangeRepository.find_by_id(exchange_id)
+        if not exchange:
+            raise NotFoundError(f"An exchange proposal with ID {exchange_id} not found")
+        return exchange
 
     @staticmethod
-    def get_user_proposals(user_id: UUID) -> list[domain.Exchange]:
-        return ExchangeRepository.find_user_proposals(user_id)
+    def get_user_proposals(user_id: UUID) -> Optional[list[domain.Exchange]]:
+        exchange = ExchangeRepository.find_user_proposals(user_id)
+        if not exchange:
+            raise NotFoundError(f"An exchange proposal with user ID {user_id} not found")
+        return exchange
 
     @staticmethod
-    def get_proposals_by_sender_ad_id(ad_id: UUID) -> list[domain.Exchange]:
-        return ExchangeRepository.find_by_sender_ad_id(ad_id)
+    def get_proposals_by_sender_ad_id(ad_id: UUID) -> Optional[list[domain.Exchange]]:
+        exchange = ExchangeRepository.find_by_sender_ad_id(ad_id)
+        if not exchange:
+            raise NotFoundError(f"An exchange proposal with ID {ad_id} not found")
+        return exchange
 
     @staticmethod
-    def get_proposals_by_receiver_ad_id(ad_id: UUID) -> list[domain.Exchange]:
-        return ExchangeRepository.find_by_receiver_ad_id(ad_id)
+    def get_proposals_by_receiver_ad_id(ad_id: UUID) -> Optional[list[domain.Exchange]]:
+        exchange = ExchangeRepository.find_by_receiver_ad_id(ad_id)
+        if not exchange:
+            raise NotFoundError(f"An exchange proposal with ID {ad_id} not found")
+        return exchange

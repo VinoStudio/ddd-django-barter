@@ -100,15 +100,8 @@ class ExchangeCreateView(LoginRequiredMixin, View):
         return render(request, 'exchanges/exchange_form.html', context)
 
     def post(self, request, ad_receiver_id):
-        ad_sender_id = request.POST.get('ad_sender_id')
-        comment = request.POST.get('comment', '')
 
-        dto = CreateExchangeDTO(
-            user_id=request.user.id,
-            ad_sender_id=ad_sender_id,
-            ad_receiver_id=ad_receiver_id,
-            comment=comment,
-        )
+        dto = CreateExchangeDTO.from_request(request, ad_receiver_id)
 
         exchange = exchange_service.create_proposal(dto)
 
@@ -118,16 +111,10 @@ class ExchangeCreateView(LoginRequiredMixin, View):
 
 class ExchangeUpdateView(LoginRequiredMixin, View):
     def post(self, request, exchange_id):
-        status = request.POST.get('status')
-
-        dto = UpdateExchangeStatusDTO(
-            exchange_id=exchange_id,
-            user_id=request.user.id,
-            status=ExchangeStatus(status)
-        )
+        dto = UpdateExchangeStatusDTO.from_request(request, exchange_id)
         exchange = exchange_service.update_proposal_status(dto)
 
-        messages.success(request, f"Exchange status updated to {status}!")
+        messages.success(request, f"Exchange status updated to {dto.status.value}!")
         return redirect('exchange_detail', exchange_id=exchange.id)
 
 
