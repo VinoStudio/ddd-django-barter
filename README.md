@@ -4,15 +4,19 @@ This project is containerized with Docker for easy setup and deployment. Follow 
 
 ### Requirements:
 
-- Docker and Docker Compose installed on your system
+- Docker and Docker Compose are installed on your system
 - Git (to clone the repository)
 
 ### Setup: 
 1. Clone the repository:
-```bach
+```bash
 git clone https://github.com/VinoStudio/ddd-django-barter.git
+```
+
+```bash
 cd [repo-directory]
 ```
+
 2. Configure environment variables
 
 ```bash
@@ -23,20 +27,20 @@ Edit the .env file with your preferred settings
 ### Starting and Stopping the Application
 The application uses a Docker Compose setup with multiple services:
 1. Run the application:
-- if this is the first time running, run the following command:
+- If this is the first time running, run the following command:
 ```bash
 make app
 ```
-- then run the following command to apply django-migrations:
+- Then run the following command to apply django-migrations:
 ```bash
 make migrations
 ```
-- next time is enough to run:
+- Next time, it's enough to run:
 ```bash
 make app
 ```
 
-2.Stop application running containers by:
+2. Stop the application running containers by:
 ```bash
 make down
 ```
