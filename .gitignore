@@ -40,5 +40,4 @@ ENV/
 .docker/
 
 # Project specific
-logs/
 *.pid
