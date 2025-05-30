@@ -1,0 +1,12 @@
+services:
+  pgadmin_barter:
+    container_name: pgadmin_barter
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:?}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:?}
+    ports:
+      - "${PGADMIN_PORT}:80"
+    depends_on:
+      - postgres_barter

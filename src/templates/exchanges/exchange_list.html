@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}My Exchanges - Barter Exchange{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">My Exchanges</h1>
+        <a href="{% url 'ad_list' %}" class="btn btn-outline-primary">Browse Items</a>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Filter Exchanges</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label for="filter_type" class="form-label">Show</label>
+                    <select class="form-select" id="filter_type" name="filter_type">
+                        <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Exchanges</option>
+                        <option value="sent" {% if filter_type == 'sent' %}selected{% endif %}>Sent Proposals</option>
+                        <option value="received" {% if filter_type == 'received' %}selected{% endif %}>Received Proposals</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        {% for s in statuses %}
+                        <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if exchanges %}
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-4">Date</th>
+                            <th>Your Item</th>
+                            <th>Other Item</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exchange in exchanges %}
+                        <tr>
+                            <td class="px-4">{{ exchange.created_at|date:"M d, Y" }}</td>
+                            <td>{{ exchange.user_item|truncatechars:30 }}</td>
+                            <td>{{ exchange.other_item|truncatechars:30 }}</td>
+                            <td>
+                                {% if exchange.is_user_sender %}
+                                <span class="badge bg-info text-dark">Sent</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Received</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge {% if exchange.status.value == 'pending' %}bg-warning text-dark{% elif exchange.status.value == 'accepted' %}bg-success{% elif exchange.status.value == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ exchange.status.value|title }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'exchange_detail' exchange.id %}" class="btn btn-sm btn-primary">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <div class="py-4">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <h4 class="mt-3">No exchanges found</h4>
+                <p class="text-muted">
+                    {% if filter_type != 'all' or status %}
+                    Try changing your filter settings or <a href="{% url 'exchange_list' %}">view all exchanges</a>.
+                    {% else %}
+                    You haven't participated in any exchanges yet.
+                    {% endif %}
+                </p>
+                <a href="{% url 'ad_list' %}" class="btn btn-primary mt-2">Browse Items to Exchange</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

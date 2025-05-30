@@ -1,0 +1,22 @@
+services:
+  postgres_barter:
+    image: postgres:15
+    container_name: postgres_barter
+    restart: always
+    volumes:
+      - postgres_barter_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:?}
+      - POSTGRES_USER=${POSTGRES_USER:?}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?}
+    ports:
+      - "${POSTGRES_OUTER_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+volumes:
+  postgres_barter_data:

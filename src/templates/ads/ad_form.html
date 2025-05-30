@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if ad %}Edit Item{% else %}Post New Item{% endif %} - Barter Exchange{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">{% if ad %}Edit Item{% else %}Post New Item{% endif %}</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% if ad %}{% url 'ad_update' ad.id %}{% else %}{% url 'ad_create' %}{% endif %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ ad.title|default:'' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-control" id="category" name="category" required>
+                            <option value="">Select a category</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if ad.category == cat %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="condition" class="form-label">Condition</label>
+                        <select class="form-control" id="condition" name="condition" required>
+                            <option value="">Select condition</option>
+                            {% for cond in conditions %}
+                            <option value="{{ cond }}" {% if ad.condition == cond %}selected{% endif %}>{{ cond }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" required>{{ ad.description|default:'' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Image (optional)</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                        {% if ad.image_url %}
+                        <p class="mt-2">Current image: <a href="{{ ad.image_url }}" target="_blank">View</a></p>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">{% if ad %}Update Item{% else %}Post Item{% endif %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

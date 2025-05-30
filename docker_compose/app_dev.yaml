@@ -1,0 +1,22 @@
+services:
+  barter_django:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: barter_django
+    ports:
+      - "${APP_PORT}:8000"
+    volumes:
+      - ../src/:/app/src
+      - ../src/media:/app/src/media
+      - media_volume:/app/src/media
+    env_file:
+      - ../.env
+    depends_on:
+      postgres_barter:
+        condition: service_healthy
+
+    command: "python src/manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  media_volume:

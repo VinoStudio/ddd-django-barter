@@ -1,0 +1,15 @@
+services:
+  postgres_migration:
+    container_name: barter_migrations
+    build:
+      context: ..
+    restart:
+      on-failure:5
+    env_file:
+      - ../.env
+    depends_on:
+      postgres_barter:
+        condition: service_healthy
+    command:
+      sh -c "python src/manage.py makemigrations &&
+             python src/manage.py migrate"

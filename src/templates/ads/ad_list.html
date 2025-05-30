@@ -1,0 +1,131 @@
+<!-- templates/ads/ad_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}Browse Items - Barter Exchange{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Browse Items for Exchange</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <form method="get" class="card p-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" class="form-control" id="search" name="search" value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-control" id="category" name="category">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label for="condition" class="form-label">Condition</label>
+                        <select class="form-control" id="condition" name="condition">
+                            <option value="">All Conditions</option>
+                            {% for cond in conditions %}
+                            <option value="{{ cond }}" {% if condition == cond %}selected{% endif %}>{{ cond }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">All Statuses</option>
+                            {% for stat in statuses %}
+                            <option value="{{ stat }}" {% if stat == status %}selected{% endif %}>{{ stat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex p-4 mt-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% if ads %}
+        {% for ad in ads %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                <div class="position-relative">
+                    <span class="badge position-absolute top-0 end-0 m-2 {% if ad.status.value == 'active' %}bg-success{% elif ad.status.value == 'archived' %}bg-secondary{% else %}bg-warning{% endif %}">
+                        {{ ad.status }}
+                    </span>
+                    {% if ad.image_url %}
+                    <img src="{{ ad.image_url }}" class="card-img-top img-fluid" alt="{{ ad.title }}">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                        <span class="text-muted">No Image</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ ad.title }}</h5>
+                    <p class="card-text text-muted">{{ ad.category }} • {{ ad.condition }}</p>
+                    <p class="card-text">{{ ad.description|truncatechars:100 }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'ad_detail' ad.id %}" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No items found matching your criteria.
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.paginator.num_pages > 1 %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">{{ num }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">Last</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

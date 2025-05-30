@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Not Found</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+        }
+        .error-code {
+            font-size: 120px;
+            font-weight: bold;
+            margin: 0;
+            background: linear-gradient(90deg, #ff6b6b, #ffa06b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+        .message {
+            font-size: 24px;
+            color: #333;
+            margin: 20px 0;
+        }
+        .details {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .back-button {
+            background: linear-gradient(90deg, #ff6b6b, #ffa06b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .back-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+        .lost-item {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="lost-item">
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" fill="#f5f7fa" stroke="#ff6b6b" stroke-width="5"/>
+                <text x="100" y="115" font-size="80" text-anchor="middle" fill="#ff6b6b">?</text>
+            </svg>
+        </div>
+        <h1 class="error-code">404</h1>
+        <p class="message">Oops! We couldn't find that item</p>
+        <p class="details">{{ message }}</p>
+        <a href="{% url 'ad_list' %}" class="back-button">Back to Listings</a>
+    </div>
+</body>
+</html>

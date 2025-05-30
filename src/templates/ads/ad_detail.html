@@ -1,0 +1,68 @@
+<!-- templates/ads/ad_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ ad.title }} - Barter Exchange{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1>{{ ad.title }}</h1>
+        <p class="text-muted">
+            Posted by {{ ad.user_name }} on {{ ad.created_at|date:"F j, Y" }}
+        </p>
+
+        <div class="mb-4">
+            <span class="badge bg-primary">{{ ad.category }}</span>
+            <span class="badge bg-secondary">{{ ad.condition }}</span>
+            <span class="badge {% if ad.status == 'active' %}bg-success{% elif ad.status == 'archived' %}bg-secondary{% else %}bg-warning{% endif %}">{{ ad.status }}</span>
+        </div>
+
+        {% if ad.image_url %}
+        <div class="mb-4">
+            <img src="{{ ad.image_url }}" class="img-fluid rounded" alt="{{ ad.title }}">
+        </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Description</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ ad.description }}</p>
+            </div>
+        </div>
+
+        {% if is_owner %}
+        <div class="d-flex gap-2 mb-4">
+            <a href="{% url 'ad_update' ad.id %}" class="btn btn-warning">Edit</a>
+            <form method="post" action="{% url 'ad_delete' ad.id %}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4 pt-2">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Exchange Options</h5>
+            </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        {% if is_owner %}
+                            <p class="text-muted pt-3 align-middle">This is your own item.</p>
+                        {% elif ad.status == "active" %}
+                            <p>Want to exchange something for this item?</p>
+                            <a href="{% url 'exchange_create' ad.id %}" class="btn btn-success w-100">Propose Exchange</a>
+                        {% else %}
+                            <p class="text-muted pt-3 align-middle">This item is no longer available for exchange.</p>
+                        {% endif %}
+                    {% else %}
+                        <p>Please <a href="{% url 'login' %}">login</a> to propose an exchange.</p>
+                    {% endif %}
+                </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

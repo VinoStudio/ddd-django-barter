@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Barter Exchange{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">My Profile</h3>
+            </div>
+            <div class="card-body">
+                <h4>{{ user.username }}</h4>
+                <p class="text-muted">Member since: {{ user.date_joined|date:"F j, Y" }}</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'ad_create' %}" class="btn btn-primary">Post New Item</a>
+                    <a href="{% url 'exchange_list' %}" class="btn btn-outline-primary">Manage Exchanges</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">My Items</h3>
+                <a href="{% url 'ad_create' %}" class="btn btn-sm btn-primary">+ Add Item</a>
+            </div>
+            <div class="card-body">
+                {% if user_ads %}
+                    <div class="row">
+                        {% for ad in user_ads %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                {% if ad.image_url %}
+                                <img src="{{ ad.image_url }}" class="card-img-top" alt="{{ ad.title }}" style="height: 140px; object-fit: cover;">
+                                {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 140px;">
+                                    <span class="text-muted">No Image</span>
+                                </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ ad.title }}</h5>
+                                    <p class="card-text text-muted small">{{ ad.category }} • {{ ad.condition }}</p>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'ad_detail' ad.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                        <a href="{% url 'ad_update' ad.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        You haven't posted any items yet. <a href="{% url 'ad_create' %}">Post your first item</a> to start exchanging!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Recent Exchange Activity</h3>
+            </div>
+            <div class="card-body">
+                {% if pending_exchanges %}
+                <h5>Pending Exchanges</h5>
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Your Item</th>
+                                <th>Their Item</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exchange in pending_exchanges|slice:":5" %}
+                            <tr>
+                                <td>{{ exchange.created_at|date:"M d" }}</td>
+                                <td>{{ exchange.user_item|truncatechars:20 }}</td>
+                                <td>{{ exchange.other_item|truncatechars:20 }}</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">
+                                        {{ exchange.status.value|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'exchange_detail' exchange.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                {% if completed_exchanges %}
+                <h5>Completed Exchanges</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Your Item</th>
+                                <th>Their Item</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for exchange in completed_exchanges|slice:":5" %}
+                            <tr>
+                                <td>{{ exchange.created_at|date:"M d" }}</td>
+                                <td>{{ exchange.user_item|truncatechars:20 }}</td>
+                                <td>{{ exchange.other_item|truncatechars:20 }}</td>
+                                <td>
+                                    <span class="badge {% if exchange.status.value == 'ACCEPTED' %}bg-success text-white{% elif exchange.status.value == 'REJECTED' %}bg-danger text-white{% else %}bg-secondary text-white{% endif %}">
+                                        {{ exchange.status.value|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'exchange_detail' exchange.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                {% if not pending_exchanges and not completed_exchanges %}
+                <div class="alert alert-info">
+                    You haven't participated in any exchanges yet.
+                </div>
+                {% endif %}
+
+                {% if pending_exchanges or completed_exchanges %}
+                <div class="mt-3">
+                    <a href="{% url 'exchange_list' %}" class="btn btn-outline-primary">View All Exchanges</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

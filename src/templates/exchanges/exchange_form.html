@@ -1,0 +1,71 @@
+<!-- templates/exchanges/exchange_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}Propose Exchange - Barter Exchange{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Propose an Exchange</h1>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">You want this item:</h5>
+            </div>
+            {% if receiver_ad.image_url %}
+            <img src="{{ receiver_ad.image_url }}" class="card-img-top" alt="{{ receiver_ad.title }}" style="max-height: 300px; object-fit: contain;">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ receiver_ad.title }}</h5>
+                <p class="card-text text-muted">{{ receiver_ad.category }} • {{ receiver_ad.condition }}</p>
+                <p class="card-text">{{ receiver_ad.description|truncatechars:200 }}</p>
+                <p class="card-text text-muted">Posted by {{ receiver_ad.owner_username }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Offer your item:</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'exchange_create' receiver_ad.id %}">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="ad_sender_id" class="form-label">Select your item to offer</label>
+                        <select class="form-control" id="ad_sender_id" name="ad_sender_id" required>
+                            <option value="">Select an item</option>
+                            {% for ad in user_ads %}
+                                {% if ad.status == 'active' %}
+                                    <option value="{{ ad.id }}">{{ ad.title }} ({{ ad.condition }})</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Comment (optional)</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Add a message to the owner"></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Send Exchange Proposal</button>
+                    </div>
+                </form>
+
+                {% if not user_ads %}
+                <div class="alert alert-warning mt-3">
+                    <p>You don't have any items to offer. <a href="{% url 'ad_create' %}">Post an item</a> first.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-2">
+    <a href="{% url 'ad_detail' receiver_ad.id %}" class="btn btn-secondary">Cancel</a>
+</div>
+{% endblock %}
