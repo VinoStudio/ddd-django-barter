@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Iterable
 from logging import getLogger
 from uuid6 import UUID
 from dataclasses import dataclass
@@ -22,7 +22,7 @@ class AdRepository:
     def update(ad: domain.Ad) -> domain.Ad:
         updated_model: models.Ad = AdMapper.from_entity(ad)
 
-        #here we tell django that this model is not new
+        # here we tell django that this model is not new
         updated_model._state.adding = False
         updated_model.save()
         return AdRepository.find_by_id(ad.id)
@@ -55,14 +55,19 @@ class AdRepository:
         category: str,
         status: str,
         condition: str,
-        page: int = 1,
-        page_size: int = 10
-    )-> List[Ad]:
+        user_id: Optional[UUID] = None,
+    ) -> Iterable[models.Ad]:
+
         queryset = models.Ad.objects.all()
 
+        if user_id:
+            queryset = queryset.filter(user_id=user_id)
+
         if keyword:
-            queryset = queryset.filter(Q(title__icontains=keyword) |
-                                       Q(description__icontains=keyword))
+            queryset = queryset.filter(
+                Q(title__icontains=keyword) | Q(description__icontains=keyword)
+            )
+
         if category:
             queryset = queryset.filter(category=category)
 
@@ -72,8 +77,4 @@ class AdRepository:
         if status:
             queryset = queryset.filter(status=status)
 
-        start = (page - 1) * page_size
-        end = start + page_size
-
-        ad_models = queryset[start:end]
-        return [AdMapper.to_entity(model) for model in ad_models]
+        return queryset

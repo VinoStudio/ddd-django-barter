@@ -29,4 +29,4 @@ class ExceptionMiddleware:
             }, status=403)
 
         messages.error(request, "An unexpected error occurred. Please try again later.")
-        return redirect('home')  # Redirect to your home page
+        return redirect('index')  # Redirect to your home page

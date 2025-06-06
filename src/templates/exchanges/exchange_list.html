@@ -58,18 +58,18 @@
                         {% for exchange in exchanges %}
                         <tr>
                             <td class="px-4">{{ exchange.created_at|date:"M d, Y" }}</td>
-                            <td>{{ exchange.user_item|truncatechars:30 }}</td>
-                            <td>{{ exchange.other_item|truncatechars:30 }}</td>
+                            <td>{{ exchange.sender_item|truncatechars:30 }}</td>
+                            <td>{{ exchange.receiver_item|truncatechars:30 }}</td>
                             <td>
-                                {% if exchange.is_user_sender %}
+                                {% if exchange.ad_sender_id in user_ads_ids %}
                                 <span class="badge bg-info text-dark">Sent</span>
                                 {% else %}
                                 <span class="badge bg-secondary">Received</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <span class="badge {% if exchange.status.value == 'pending' %}bg-warning text-dark{% elif exchange.status.value == 'accepted' %}bg-success{% elif exchange.status.value == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
-                                    {{ exchange.status.value|title }}
+                                <span class="badge {% if exchange.status == 'pending' %}bg-warning text-dark{% elif exchange.status == 'accepted' %}bg-success{% elif exchange.status.value == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ exchange.status|title }}
                                 </span>
                             </td>
                             <td class="text-center">

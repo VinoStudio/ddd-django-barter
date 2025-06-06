@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Optional, Self
 
 from src.apps.ads.application.helpers import create_image_url
+from src.apps.ads import domain
 from src.core.application.dto import DTO
 
 
@@ -15,22 +16,28 @@ class AdDTO(DTO):
     title: str = None
     description: str = None
     image_url: Optional[str] = None
+    status: str = None
     category: str = None
     condition: str = None
     created_at: Optional[datetime] = None
 
     @classmethod
-    def from_request(cls, request) -> Self:
+    def from_entity(cls, instance: domain.Ad) -> Self:
         return cls(
-            id=request.POST.get('ad_id'),
-            user_id=request.user.id,
-            username=request.user.username,
-            title=request.POST.get('title'),
-            description=request.POST.get('description'),
-            image_url=request.POST.get('image_url'),
-            category=request.POST.get('category'),
-            condition=request.POST.get('condition')
+            id=instance.id,
+            user_id=instance.user_id,
+            username=instance.owner_username,
+            title=instance.title,
+            description=instance.description,
+            image_url=instance.image_url,
+            category=str(instance.category),
+            status=str(instance.status),
+            condition=str(instance.condition),
+            created_at=instance.created_at,
         )
+
+    @classmethod
+    def from_request(cls, request) -> Self: ...
 
 
 @dataclass(frozen=True)
@@ -39,22 +46,23 @@ class CreateAdDTO(DTO):
     title: str
     description: str
     image_url: Optional[str] = None
-    category: str = 'other'
-    condition: str = 'used'
-    status: str = 'active'
+    category: str = "other"
+    condition: str = "used"
+    status: str = "active"
 
     @classmethod
     def from_request(cls, request) -> Self:
-        img = request.FILES.get('image')
+        img = request.FILES.get("image")
         return cls(
             user_id=request.user.id,
-            title=request.POST.get('title'),
-            description=request.POST.get('description'),
+            title=request.POST.get("title"),
+            description=request.POST.get("description"),
             image_url=create_image_url(img) if img else None,
-            category=request.POST.get('category'),
-            condition=request.POST.get('condition'),
-            status=request.POST.get('status', "active")
+            category=request.POST.get("category"),
+            condition=request.POST.get("condition"),
+            status=request.POST.get("status", "active"),
         )
+
 
 @dataclass(frozen=True)
 class UpdateAdDTO(DTO):
@@ -69,16 +77,16 @@ class UpdateAdDTO(DTO):
 
     @classmethod
     def from_request(cls, request, ad_id) -> Self:
-        img = request.FILES.get('image')
+        img = request.FILES.get("image")
         return cls(
             ad_id=ad_id,
             user_id=request.user.id,
-            title=request.POST.get('title'),
-            description=request.POST.get('description'),
+            title=request.POST.get("title"),
+            description=request.POST.get("description"),
             image_url=create_image_url(img) if img else None,
-            category=request.POST.get('category'),
-            condition=request.POST.get('condition'),
-            status=request.POST.get('status')
+            category=request.POST.get("category"),
+            condition=request.POST.get("condition"),
+            status=request.POST.get("status"),
         )
 
 
@@ -89,5 +97,5 @@ class AdFilterDTO:
     keyword: Optional[str] = None
     category: Optional[str] = None
     condition: Optional[str] = None
-    status: Optional[str] = 'active'
-
+    status: Optional[str] = "active"
+    user_id: Optional[UUID] = None

@@ -19,7 +19,7 @@
                 <h5 class="card-title">{{ receiver_ad.title }}</h5>
                 <p class="card-text text-muted">{{ receiver_ad.category }} • {{ receiver_ad.condition }}</p>
                 <p class="card-text">{{ receiver_ad.description|truncatechars:200 }}</p>
-                <p class="card-text text-muted">Posted by {{ receiver_ad.owner_username }}</p>
+                <p class="card-text text-muted">Posted by <a class="text-info text-decoration-none" href="{% url 'profile' username=receiver_ad.username %}">{{ receiver_ad.username }}</a></p>
             </div>
         </div>
     </div>

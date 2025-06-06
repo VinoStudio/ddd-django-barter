@@ -1,131 +1,160 @@
 <!-- templates/ads/ad_list.html -->
 {% extends 'base.html' %}
 
-{% block title %}Browse Items - Barter Exchange{% endblock %}
+{% block title %}
+  {% if is_user_filter %}
+    {% if is_owner %}My Items{% else %}{{ user_profile.username }}'s Items{% endif %}
+  {% else %}
+    All Items
+  {% endif %}
+  - Barter Exchange
+{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Browse Items for Exchange</h1>
+<div class="container py-4">
 
-<div class="row mb-4">
-    <div class="col-md-12">
-        <form method="get" class="card p-3">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label for="search" class="form-label">Search</label>
-                        <input type="text" class="form-control" id="search" name="search" value="{{ search_query }}">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="mb-3">
-                        <label for="category" class="form-label">Category</label>
-                        <select class="form-control" id="category" name="category">
-                            <option value="">All Categories</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="mb-3">
-                        <label for="condition" class="form-label">Condition</label>
-                        <select class="form-control" id="condition" name="condition">
-                            <option value="">All Conditions</option>
-                            {% for cond in conditions %}
-                            <option value="{{ cond }}" {% if condition == cond %}selected{% endif %}>{{ cond }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select class="form-control" id="status" name="status">
-                            <option value="">All Statuses</option>
-                            {% for stat in statuses %}
-                            <option value="{{ stat }}" {% if stat == status %}selected{% endif %}>{{ stat }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2 d-flex p-4 mt-2">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="row">
-    {% if ads %}
-        {% for ad in ads %}
-        <div class="col-md-3 mb-4">
-            <div class="card h-100">
-                <div class="position-relative">
-                    <span class="badge position-absolute top-0 end-0 m-2 {% if ad.status.value == 'active' %}bg-success{% elif ad.status.value == 'archived' %}bg-secondary{% else %}bg-warning{% endif %}">
-                        {{ ad.status }}
-                    </span>
-                    {% if ad.image_url %}
-                    <img src="{{ ad.image_url }}" class="card-img-top img-fluid" alt="{{ ad.title }}">
-                    {% else %}
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
-                        <span class="text-muted">No Image</span>
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">{{ ad.title }}</h5>
-                    <p class="card-text text-muted">{{ ad.category }} • {{ ad.condition }}</p>
-                    <p class="card-text">{{ ad.description|truncatechars:100 }}</p>
-                </div>
-                <div class="card-footer">
-                    <a href="{% url 'ad_detail' ad.id %}" class="btn btn-primary btn-sm">View Details</a>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    {% else %}
+    {% if is_user_filter %}
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="alert alert-info">
-                No items found matching your criteria.
-            </div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'profile' username=user_profile.username %}">{{ user_profile.username }}'s Profile</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">All Items</li>
+                </ol>
+            </nav>
         </div>
-    {% endif %}
-</div>
+    </div>
 
-<!-- Pagination -->
-{% if page_obj.paginator.num_pages > 1 %}
-<nav aria-label="Page navigation" class="mt-4">
-    <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">First</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">Previous</a>
-        </li>
-        {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-            <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">{{ num }}</a>
-            </li>
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>
+                {% if is_owner %}My Items{% else %}{{ user_profile.username }}'s Items{% endif %}
+                <span class="badge bg-secondary">{{ total_items }}</span>
+            </h2>
+        </div>
+        <div class="col-md-4 text-md-end">
+            {% if is_owner %}
+            <a href="{% url 'ad_create' %}" class="btn btn-primary">+ Add New Item</a>
             {% endif %}
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">Next</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if condition %}&condition={{ condition }}{% endif %}">Last</a>
-        </li>
+        </div>
+    </div>
+    {% else %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form method="get" class="card p-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" value="{{ search_query }}">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-control" id="category" name="category">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <label for="condition" class="form-label">Condition</label>
+                            <select class="form-control" id="condition" name="condition">
+                                <option value="">All Conditions</option>
+                                {% for cond in conditions %}
+                                <option value="{{ cond }}" {% if condition == cond %}selected{% endif %}>{{ cond }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-control" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                {% for stat in statuses %}
+                                <option value="{{ stat }}" {% if stat == status %}selected{% endif %}>{{ stat }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex p-4 mt-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        {% if ads %}
+            {% for ad in ads %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    <div class="position-relative">
+                        <span class="badge position-absolute top-0 end-0 m-2 {% if ad.status == 'active' %}bg-success{% elif ad.status == 'archived' %}bg-secondary{% else %}bg-warning{% endif %}">
+                            {{ ad.status }}
+                        </span>
+                        {% if ad.image_url %}
+                        <img src="{{ ad.image_url }}" class="card-img-top img-fluid" alt="{{ ad.title }}">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                            <span class="text-muted">No Image</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ ad.title }}</h5>
+                        <p class="card-text text-muted">{{ ad.category }} • {{ ad.condition }}</p>
+                        <p class="card-text">{{ ad.description|truncatechars:100 }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'ad_detail' ad.id %}" class="btn btn-primary btn-sm">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No items found matching your criteria.
+                </div>
+            </div>
         {% endif %}
-    </ul>
+    </div>
+
+
+{% if total_pages > 1 %}
+<nav aria-label="Page navigation" class="mt-4">
+  <ul class="pagination justify-content-center">
+    <li class="page-item {% if not has_previous %}disabled{% endif %}">
+      <a class="page-link" href="?page={{ page|add:'-1' }}&search={{ search }}&category={{ selected_category }}&condition={{ selected_condition }}&status={{ selected_status }}" aria-label="Previous" {% if not has_previous %}tabindex="-1" aria-disabled="true"{% endif %}>
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    {% for p in pagination_range %}
+      <li class="page-item {% if p == page %}active{% endif %}" {% if p == page %}aria-current="page"{% endif %}>
+        <a class="page-link" href="?page={{ p }}&search={{ search }}&category={{ selected_category }}&condition={{ selected_condition }}&status={{ selected_status }}">{{ p }}</a>
+      </li>
+    {% endfor %}
+
+    <li class="page-item {% if not has_next %}disabled{% endif %}">
+      <a class="page-link" href="?page={{ page|add:'1' }}&search={{ search }}&category={{ selected_category }}&condition={{ selected_condition }}&status={{ selected_status }}" aria-label="Next" {% if not has_next %}tabindex="-1" aria-disabled="true"{% endif %}>
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
 </nav>
+
+<div class="text-center text-muted small mt-2">
+  Показано {{ ads|length }} из {{ total_items }} объявлений
+  (Страница {{ page }} из {{ total_pages }})
+</div>
 {% endif %}
 {% endblock %}

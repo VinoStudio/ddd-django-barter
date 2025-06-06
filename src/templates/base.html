@@ -30,6 +30,9 @@
                         <a class="nav-link" href="{% url 'ad_create' %}">Post an Item</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user_ad_list' username=user.username %}">My Ads</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'exchange_list' %}">My Exchanges</a>
                     </li>
                     {% endif %}
@@ -40,7 +43,7 @@
                         <span class="nav-link">Welcome, {{ user.username }}</span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        <a class="nav-link" href="{% url 'profile' username=user.username %}">Profile</a>
                     </li>
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}" class="m-0 p-0">

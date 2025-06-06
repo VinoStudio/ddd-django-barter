@@ -8,7 +8,7 @@
     <div class="col-md-8">
         <h1>{{ ad.title }}</h1>
         <p class="text-muted">
-            Posted by {{ ad.user_name }} on {{ ad.created_at|date:"F j, Y" }}
+            Posted by <a class="text-primary text-decoration-none" href="{% url 'profile' username=ad.username %}">{{ ad.username }}</a> on {{ ad.created_at|date:"F j, Y" }}
         </p>
 
         <div class="mb-4">

@@ -1,21 +1,27 @@
 {% extends 'base.html' %}
 
-{% block title %}My Profile - Barter Exchange{% endblock %}
+{% block title %}
+  {% if is_owner %}My Profile{% else %}{{ user_profile.username }}'s Profile{% endif %} - Barter Exchange
+{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-4">
         <div class="card mb-4">
             <div class="card-header">
-                <h3 class="mb-0">My Profile</h3>
+                <h3 class="mb-0">
+                    {% if is_owner %}My Profile{% else %}{{ user_profile.username }}'s Profile{% endif %}
+                </h3>
             </div>
             <div class="card-body">
-                <h4>{{ user.username }}</h4>
-                <p class="text-muted">Member since: {{ user.date_joined|date:"F j, Y" }}</p>
+                <h4>{{ user_profile.username }}</h4>
+                <p class="text-muted">Member since: {{ user_profile.date_joined|date:"F j, Y" }}</p>
+                {% if is_owner %}
                 <div class="d-grid gap-2">
                     <a href="{% url 'ad_create' %}" class="btn btn-primary">Post New Item</a>
                     <a href="{% url 'exchange_list' %}" class="btn btn-outline-primary">Manage Exchanges</a>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -23,47 +29,66 @@
     <div class="col-md-8">
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h3 class="mb-0">My Items</h3>
+                <h3 class="mb-0">
+                    {% if is_owner %}My Items{% else %}{{ user_profile.username }}'s Items{% endif %}
+                </h3>
+                {% if is_owner %}
                 <a href="{% url 'ad_create' %}" class="btn btn-sm btn-primary">+ Add Item</a>
+                {% endif %}
             </div>
-            <div class="card-body">
-                {% if user_ads %}
-                    <div class="row">
-                        {% for ad in user_ads %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100">
-                                <div class="position-relative">
-                                    <span class="badge position-absolute top-0 end-0 m-2 {% if ad.status.value == 'active' %}bg-success{% elif ad.status.value == 'archived' %}bg-secondary{% else %}bg-warning{% endif %}">
-                                        {{ ad.status }}
-                                    </span>
-                                    {% if ad.image_url %}
-                                    <img src="{{ ad.image_url }}" class="card-img-top" alt="{{ ad.title }}" style="height: 140px; object-fit: cover;">
-                                    {% else %}
-                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 140px;">
-                                        <span class="text-muted">No Image</span>
+                <div class="card-body">
+                    {% if user_ads %}
+                        <div class="row">
+                            {% for ad in user_ads|slice:":6" %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="position-relative">
+                                        {% if is_owner %}
+                                        <span class="badge position-absolute top-0 end-0 m-2 {% if ad.status == 'active' %}bg-success{% elif ad.status == 'archived' %}bg-secondary{% else %}bg-warning{% endif %}">
+                                            {{ ad.status }}
+                                        </span>
+                                        {% endif %}
+                                        {% if ad.image_url %}
+                                        <img src="{{ ad.image_url }}" class="card-img-top" alt="{{ ad.title }}" style="height: 140px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 140px;">
+                                            <span class="text-muted">No Image</span>
+                                        </div>
+                                        {% endif %}
                                     </div>
-                                    {% endif %}
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ ad.title }}</h5>
-                                    <p class="card-text text-muted small">{{ ad.category }} • {{ ad.condition }}</p>
-                                    <div class="d-flex gap-2">
-                                        <a href="{% url 'ad_detail' ad.id %}" class="btn btn-sm btn-outline-primary">View</a>
-                                        <a href="{% url 'ad_update' ad.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ ad.title }}</h5>
+                                        <p class="card-text text-muted small">{{ ad.category }} • {{ ad.condition }}</p>
+                                        <div class="d-flex gap-2">
+                                            <a href="{% url 'ad_detail' ad.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                            {% if is_owner %}
+                                            <a href="{% url 'ad_update' ad.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="alert alert-info">
-                        You haven't posted any items yet. <a href="{% url 'ad_create' %}">Post your first item</a> to start exchanging!
-                    </div>
-                {% endif %}
+                        {% if total_ads > 6 %}
+                            <div class="text-center mt-3">
+                                <a href="{% url 'user_ad_list' username=user_profile.username %}" class="btn btn-outline-primary">
+                                    Show all items ({{ total_ads }})
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            {% if is_owner %}
+                            You haven't posted any items yet. <a href="{% url 'ad_create' %}">Post your first item</a> to start exchanging!
+                            {% else %}
+                            {{ user_profile.username }} hasn't posted any items yet.
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-
+        {% if is_owner %}
         <div class="card mb-4">
             <div class="card-header">
                 <h3 class="mb-0">Recent Exchange Activity</h3>
@@ -86,11 +111,11 @@
                             {% for exchange in pending_exchanges|slice:":5" %}
                             <tr>
                                 <td>{{ exchange.created_at|date:"M d" }}</td>
-                                <td>{{ exchange.user_item|truncatechars:20 }}</td>
-                                <td>{{ exchange.other_item|truncatechars:20 }}</td>
+                                <td>{{ exchange.sender_item|truncatechars:20 }}</td>
+                                <td>{{ exchange.receiver_item|truncatechars:20 }}</td>
                                 <td>
                                     <span class="badge bg-warning text-dark">
-                                        {{ exchange.status.value|title }}
+                                        {{ exchange.status|title }}
                                     </span>
                                 </td>
                                 <td>
@@ -120,11 +145,11 @@
                             {% for exchange in completed_exchanges|slice:":5" %}
                             <tr>
                                 <td>{{ exchange.created_at|date:"M d" }}</td>
-                                <td>{{ exchange.user_item|truncatechars:20 }}</td>
-                                <td>{{ exchange.other_item|truncatechars:20 }}</td>
+                                <td>{{ exchange.sender_item|truncatechars:20 }}</td>
+                                <td>{{ exchange.receiver_item|truncatechars:20 }}</td>
                                 <td>
-                                    <span class="badge {% if exchange.status.value == 'ACCEPTED' %}bg-success text-white{% elif exchange.status.value == 'REJECTED' %}bg-danger text-white{% else %}bg-secondary text-white{% endif %}">
-                                        {{ exchange.status.value|title }}
+                                    <span class="badge {% if exchange.status == 'accepted' %}bg-success text-white{% elif exchange.status == 'rejected' %}bg-danger text-white{% else %}bg-secondary text-white{% endif %}">
+                                        {{ exchange.status|title }}
                                     </span>
                                 </td>
                                 <td>
@@ -150,6 +175,7 @@
                 {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -136,7 +136,8 @@ USE_I18N = True
 USE_TZ = True
 
 AUTH_USER_MODEL = 'user.User'
-LOGIN_REDIRECT_URL = '/profile/'
+LOGIN_REDIRECT_URL = '/ads'
+LOGIN_URL = '/login/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 # Static files (CSS, JavaScript, Images)
